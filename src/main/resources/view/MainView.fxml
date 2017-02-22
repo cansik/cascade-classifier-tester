@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import ch.bildspur.cctester.editor.ImageEditor?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import ch.bildspur.cctester.ui.RelationNumberField?>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+            prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ch.bildspur.cctester.controller.MainView">
+    <children>
+        <Button layoutX="10.0" layoutY="5.0" mnemonicParsing="false" text="Load Xml" AnchorPane.leftAnchor="10.0"
+                AnchorPane.topAnchor="5.0" onAction="#loadCascadeFile"/>
+
+        <Label fx:id="ccFileLabel" layoutX="20.0" layoutY="35.0" text="CC File: -" AnchorPane.leftAnchor="10.0"
+               AnchorPane.topAnchor="35.0"/>
+
+        <Button fx:id="loadImageButton" layoutX="10.0" layoutY="60.0" mnemonicParsing="false" text="Load Image" AnchorPane.leftAnchor="10.0"
+                AnchorPane.topAnchor="60.0" onAction="#loadImage"/>
+
+        <Button fx:id="loadFromClipButton" layoutX="10.0" layoutY="90.0" mnemonicParsing="false" text="From Clipboard" AnchorPane.leftAnchor="10.0"
+                AnchorPane.topAnchor="90.0" onAction="#loadImageFromClipBoard"/>
+
+        <Label fx:id="imageLabel" layoutX="10.0" layoutY="120.0" text="Image: -" AnchorPane.leftAnchor="10.0"
+               AnchorPane.topAnchor="120.0"/>
+
+        <Label layoutX="10.0" layoutY="180.0" text="Scale Factor" AnchorPane.leftAnchor="10.0"
+               AnchorPane.topAnchor="180.0"/>
+
+        <RelationNumberField fx:id="scaleFactor" layoutX="10.0" layoutY="200.0" AnchorPane.leftAnchor="10.0"
+                             AnchorPane.topAnchor="200.0" />
+
+        <Label layoutX="10.0" layoutY="240.0" text="Min Neighbors" AnchorPane.leftAnchor="10.0"
+               AnchorPane.topAnchor="240.0"/>
+
+        <RelationNumberField fx:id="minNeighbors" layoutX="10.0" layoutY="260.0" AnchorPane.leftAnchor="10.0"
+                             AnchorPane.topAnchor="260.0" />
+
+        <Button fx:id="runDetectionButton" layoutX="10.0" layoutY="320.0" mnemonicParsing="false" text="Run Detection" AnchorPane.leftAnchor="10.0"
+                AnchorPane.topAnchor="320.0" onAction="#runDetection"/>
+
+
+        <Label fx:id="statusLabel" layoutX="10.0" layoutY="360.0" text="Status" AnchorPane.leftAnchor="10.0"
+               AnchorPane.topAnchor="360.0"/>
+
+        <ImageEditor fx:id="editor" layoutX="220.0" layoutY="31.0"
+                     style="-fx-background-color: #696969;" AnchorPane.bottomAnchor="22.0" AnchorPane.leftAnchor="220.0"
+                     AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="31.0"/>
+    </children>
+</AnchorPane>
