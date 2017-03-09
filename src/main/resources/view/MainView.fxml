@@ -45,6 +45,14 @@
 
         <ImageEditor fx:id="editor"
                      style="-fx-background-color: #696969;" AnchorPane.bottomAnchor="22.0" AnchorPane.leftAnchor="220.0"
-                     AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="31.0"/>
+                     AnchorPane.rightAnchor="180.0" AnchorPane.topAnchor="31.0"/>
+
+        <Label text="Result" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="31.0"/>
+
+        <ListView fx:id="areaListView" prefWidth="140.0"
+                  AnchorPane.bottomAnchor="57.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="51.0"/>
+
+        <Button mnemonicParsing="false" onAction="#saveButtonClicked" text="Save Image"
+                AnchorPane.bottomAnchor="22.0" AnchorPane.rightAnchor="20.0"/>
     </children>
 </AnchorPane>

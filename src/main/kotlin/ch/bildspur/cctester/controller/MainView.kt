@@ -7,18 +7,28 @@ import ch.fhnw.afpars.model.AFImage
 import ch.bildspur.cctester.ui.RelationNumberField
 import javafx.application.Platform
 import javafx.beans.property.SimpleObjectProperty
+import javafx.collections.FXCollections
+import javafx.collections.ObservableList
+import javafx.embed.swing.SwingFXUtils
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.Cursor
 import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.control.Label
+import javafx.scene.control.ListCell
+import javafx.scene.control.ListView
+import javafx.scene.image.ImageView
 import javafx.scene.input.Clipboard
+import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import javafx.stage.Stage
+import javafx.util.Callback
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
 import org.opencv.objdetect.CascadeClassifier
+import java.io.IOException
+import javax.imageio.ImageIO
 import kotlin.concurrent.thread
 
 /**
@@ -59,9 +69,16 @@ class MainView {
     @FXML
     lateinit var runDetectionButton : Button
 
+    @FXML
+    lateinit var areaListView: ListView<AFImage>
+
     val image = SimpleObjectProperty<AFImage>()
 
+    var areaImages = FXCollections.observableArrayList<AFImage>()
+
     var cascadeFile = ""
+
+    var currentImage : AFImage? = null
 
     fun setupView()
     {
@@ -77,6 +94,37 @@ class MainView {
         scaleFactor.valueProperty().addListener { o ->  runDetection()}
 
         minNeighbors.valueProperty().addListener { o ->  runDetection()}
+
+        areaListView.items = areaImages
+        areaListView.cellFactory = Callback { listView ->
+            object : ListCell<AFImage>() {
+                override fun updateItem(item: AFImage?, empty: Boolean) {
+                    if (item != null) {
+                        super.updateItem(item, empty)
+
+                        if (empty) {
+                            graphic = null
+                        } else {
+                            // true makes this load in background
+                            val imageView = ImageView(item.image.toImage())
+                            imageView.preserveRatioProperty().set(true)
+                            imageView.fitWidth = areaListView.width * 0.75
+
+                            val label = Label(item.name)
+                            graphic = VBox(label, imageView)
+                        }
+                    }
+                }
+            }
+        }
+        areaListView.selectionModel.selectedItemProperty().addListener { observable, oldValue, newValue ->
+            if (newValue != null) {
+                editor.resetZoom()
+                editor.displayImage(newValue.image.toImage())
+
+                currentImage = newValue
+            }
+        }
 
         loadFromClipButton.isDisable = true
         loadImageButton.isDisable = true
@@ -170,17 +218,55 @@ class MainView {
 
             cascadeDetector.detectMultiScale(image.value.image, areas, scaleFactor.getValue(), minNeighbors.getValue().toInt(), 0, Size(0.0, 0.0), Size(0.0, 0.0))
 
-            // Draw a bounding box around each detected obejct.
+            val areaAFImages = areas.toArray().mapIndexed { i, rect ->  AFImage(Mat(result, rect).copy(), "Area $i")}
+
+            Platform.runLater {
+                areaImages.clear()
+                areaListView.items.clear()
+
+                // create small images from areas
+                areaImages.addAll(areaAFImages)
+            }
+
             for (rect in areas.toArray()) {
                 Imgproc.rectangle(result, Point(rect.x.toDouble(), rect.y.toDouble()),
                         Point(rect.x + rect.width.toDouble(), rect.y + rect.height.toDouble()), Scalar(0.0, 255.0, 0.0), 2)
             }
+
+            areaImages.add(0, AFImage(result, "Original"))
+
+            currentImage = AFImage(result, "Original")
 
             Platform.runLater {
                 editor.displayImage(result.toImage())
                 editor.redraw()
                 editor.cursor = editor.activeTool.cursor
                 statusLabel.text = "Objects: ${areas.toArray().size}"
+            }
+        }
+    }
+
+    fun saveButtonClicked(e : ActionEvent)
+    {
+        if(currentImage == null)
+            return
+
+        val stage = (e.source as Node).scene.window as Stage
+
+        val fileChooser = FileChooser()
+        fileChooser.initialFileName = "${currentImage!!.name}.png"
+        fileChooser.title = "Save image as png"
+        fileChooser.extensionFilters.addAll(FileChooser.ExtensionFilter("Portable Network Graphics", "*.png"))
+
+        val file = fileChooser.showSaveDialog(stage)
+
+        if (file != null) {
+            val outputImage = currentImage!!.image.toImage()
+
+            try {
+                ImageIO.write(SwingFXUtils.fromFXImage(outputImage, null), "png", file)
+            } catch (e: IOException) {
+                println("Error: $e")
             }
         }
     }
