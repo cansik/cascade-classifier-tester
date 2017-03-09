@@ -161,8 +161,8 @@ class ImageEditor : Pane() {
     }
 
     fun resetZoomImp() {
-        canvasTransformation = Point2D.ZERO
-        zoomTransformation = Point2D.ZERO
+        canvasTransformation = Point2D.ZERO!!
+        zoomTransformation = Point2D.ZERO!!
 
         zoomScale = minimumZoom
         relationScale = 1.0

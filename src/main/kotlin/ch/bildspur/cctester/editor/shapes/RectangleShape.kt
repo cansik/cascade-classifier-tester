@@ -1,6 +1,5 @@
 package ch.bildspur.cctester.editor.shapes
 
-import ch.bildspur.cctester.editor.shapes.BaseShape
 import ch.bildspur.cctester.format
 import javafx.geometry.Dimension2D
 import javafx.geometry.Point2D
