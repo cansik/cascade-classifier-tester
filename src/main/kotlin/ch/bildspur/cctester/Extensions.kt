@@ -67,3 +67,11 @@ fun Image.toMat(): Mat {
     mat.put(0, 0, buffer)
     return mat
 }
+
+fun Long.toTimeStamp(): String {
+    val second = this / 1000 % 60
+    val minute = this / (1000 * 60) % 60
+    val hour = this / (1000 * 60 * 60) % 24
+
+    return String.format("%02d:%02d:%02d:%d", hour, minute, second, this)
+}

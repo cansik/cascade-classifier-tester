@@ -5,6 +5,7 @@ import ch.bildspur.cctester.editor.ImageEditor
 import ch.bildspur.cctester.reader.AFImageReader
 import ch.fhnw.afpars.model.AFImage
 import ch.bildspur.cctester.ui.RelationNumberField
+import ch.bildspur.cctester.util.Stopwatch
 import javafx.application.Platform
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
@@ -206,9 +207,15 @@ class MainView {
 
     fun runDetection()
     {
+        val watch = Stopwatch()
+        watch.start()
+
         statusLabel.text = "detecting..."
         runDetectionButton.isDisable = false
         editor.cursor = Cursor.WAIT
+
+        areaImages.clear()
+        areaListView.items.clear()
 
         thread {
             val cascadeDetector = CascadeClassifier(cascadeFile)
@@ -219,11 +226,9 @@ class MainView {
             cascadeDetector.detectMultiScale(image.value.image, areas, scaleFactor.getValue(), minNeighbors.getValue().toInt(), 0, Size(0.0, 0.0), Size(0.0, 0.0))
 
             val areaAFImages = areas.toArray().mapIndexed { i, rect ->  AFImage(Mat(result, rect).copy(), "Area $i")}
+                    .sortedByDescending { it.image.width() * it.image.height() }
 
             Platform.runLater {
-                areaImages.clear()
-                areaListView.items.clear()
-
                 // create small images from areas
                 areaImages.addAll(areaAFImages)
             }
@@ -233,15 +238,15 @@ class MainView {
                         Point(rect.x + rect.width.toDouble(), rect.y + rect.height.toDouble()), Scalar(0.0, 255.0, 0.0), 2)
             }
 
-            areaImages.add(0, AFImage(result, "Original"))
-
-            currentImage = AFImage(result, "Original")
-
             Platform.runLater {
+                areaImages.add(0, AFImage(result, "Original"))
+                currentImage = AFImage(result, "Original")
+
                 editor.displayImage(result.toImage())
                 editor.redraw()
                 editor.cursor = editor.activeTool.cursor
-                statusLabel.text = "Objects: ${areas.toArray().size}"
+
+                statusLabel.text = "Objects: ${areas.toArray().size}\nTime: ${watch.stop().toTimeStamp()}"
             }
         }
     }
